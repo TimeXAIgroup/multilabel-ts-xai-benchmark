@@ -1,3 +1,5 @@
+"""Utility functions for dataset generation and saving."""
+
 import json
 from itertools import combinations
 from pathlib import Path
@@ -15,9 +17,18 @@ def powerset(items: list) -> list[tuple]:
 
 def save_split(data: np.ndarray | list, labels: np.ndarray, meta: list, name: str,
                out_dir: Path | str):
-    if type(data) == list:
+    """Save one dataset split to disk as .npy (signals) and .json (labels + metadata).
+
+    Args:
+        data: Signal array of shape (N, sample_length).
+        labels: Multi-label array of shape (N, num_discriminative_frequencies).
+        meta: List of N metadata dicts with ground-truth explanation entries.
+        name: Split name used as filename prefix, e.g. ``"train"``, ``"val"``, ``"test"``.
+        out_dir: Output directory. Created if it does not exist.
+    """
+    if isinstance(data, list):
         data = np.array(data)
-    if type(out_dir) == str:
+    if isinstance(out_dir, str):
         out_dir = Path(out_dir)
 
     out_dir.mkdir(parents=True, exist_ok=True)

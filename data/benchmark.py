@@ -1,13 +1,43 @@
-from typing import Any
+"""Benchmark dataset for evaluating time-series XAI methods."""
 
 import numpy as np
-from numpy import dtype, float64, ndarray
 from torch.utils.data import Dataset
 
 from utils import powerset
 
 
 class Benchmark(Dataset):
+    """Synthetic time-series benchmark dataset for XAI evaluation.
+
+    Generates multi-label classification samples where discriminative features
+    are localised sinusoidal bursts in random time windows. Each class
+    corresponds to a subset of the discriminative frequencies (power-set labels).
+    Non-discriminative distractor sinusoids are added as noise.
+
+    Args:
+        sample_length: Number of time steps per sample.
+        sampling_rate: Sampling rate in Hz. Determines the time axis and the
+            Nyquist frequency that bounds the distractor pool.
+        discriminative_frequencies: Frequencies (Hz) whose presence/absence
+            defines the class labels. Must all be below the Nyquist frequency.
+            Defaults to [7, 19, 37].
+        frequency_window_length: Length in samples of each discriminative
+            frequency window.
+        num_samples_per_pattern: Number of samples generated per class pattern.
+        overlap_min: Minimum fractional overlap between consecutive frequency
+            windows (when a sample contains multiple discriminative frequencies).
+        overlap_max: Maximum fractional overlap between consecutive frequency
+            windows.
+        noise_std: Standard deviation of the background Gaussian noise.
+        sin_amplitude: Amplitude of all sinusoidal components (discriminative
+            and distractor).
+        num_full_distractions: Number of distractor sinusoids spanning the
+            full sample length.
+        num_window_distractions: Number of distractor sinusoids placed in
+            random windows of length ``frequency_window_length``.
+        random_seed: Seed for reproducibility.
+    """
+
     def __init__(self,
                  sample_length:int=500,
                  sampling_rate:int=100,
@@ -22,7 +52,7 @@ class Benchmark(Dataset):
                  num_window_distractions:int=3,
                  random_seed:int=42,
                  ):
-        super(Benchmark, self).__init__()
+        super().__init__()
 
         self.sample_length = sample_length
         self.sampling_rate = sampling_rate
@@ -84,15 +114,16 @@ class Benchmark(Dataset):
 
         self.labels = labels
         self.meta = meta
+        self.data = np.array([self._make_sample(m) for m in self.meta])
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, idx):
-        sample_metadata = self.meta[idx]
-        return self._make_sample(sample_metadata)
+        return self.data[idx]
 
     def _make_sample(self, metadata):
+        """Build a signal from metadata by adding noise and all sinusoidal components."""
         signal = self.rng.normal(0, self.noise_std, self.sample_length).astype(np.float32)
 
         metadata = metadata.get("discriminative", []) + metadata.get("noise", [])
@@ -106,7 +137,8 @@ class Benchmark(Dataset):
         return signal
 
 
-    def _add_windows(self, frequencies, signal: ndarray[tuple[Any, ...], dtype[float64]], positions, lengths, phases):
+    def _add_windows(self, frequencies, signal, positions, lengths, phases):
+        """Add sinusoidal bursts at the specified windows to the signal in-place."""
         windows = zip(positions, lengths)
         for (start, length), freq, phase in zip(windows, frequencies, phases):
             end = min(start+length, self.sample_length)
@@ -119,6 +151,7 @@ class Benchmark(Dataset):
         return signal
 
     def _place_windows(self, num_windows: int):
+        """Return (start, end) tuples for num_windows overlapping windows placed randomly."""
         if num_windows == 0:
             return []
         if num_windows == 1:

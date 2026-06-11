@@ -1,8 +1,9 @@
+"""Generate, split, and save the benchmark dataset."""
+
 import argparse
 
 import numpy as np
 from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, Subset
 
 from data.benchmark import Benchmark
 from utils import save_split
@@ -13,7 +14,7 @@ def main(args):
     # generate dataset
     dataset = Benchmark(random_seed=args.seed)
 
-    data = np.array(list(DataLoader(dataset)))
+    data = dataset.data
     labels = np.array(dataset.labels).astype(int)
     metadata = dataset.meta
 

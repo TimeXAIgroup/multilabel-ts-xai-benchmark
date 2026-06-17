@@ -1,3 +1,7 @@
+matplotlib
 numpy
 scikit-learn
 torch
+tsai
+sktime
+momentfm

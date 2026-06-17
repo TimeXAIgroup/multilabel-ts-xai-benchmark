@@ -35,10 +35,6 @@ def save_split(data: np.ndarray | list, labels: np.ndarray, meta: list, name: st
     np.save(out_dir / f"{name}_data.npy", data)
     label_json = {
         "label": {str(i): labels[i].tolist() for i in range(len(labels))},
-        "metadata": {
-            "explanation_ground_truth": {
-                "time_domain": {str(i): meta[i] for i in range(len(meta))}
-            }
-        },
+        "metadata": {str(i): meta[i] for i in range(len(meta))},
     }
     (out_dir / f"{name}_labels.json").write_text(json.dumps(label_json))

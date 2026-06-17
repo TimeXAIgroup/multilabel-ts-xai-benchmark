@@ -109,7 +109,7 @@ class Benchmark(Dataset):
                                               "freq": freq.item(),
                                               "phase": self.rng.uniform(0, 2 * np.pi)
                                               } for freq, window in zip(window_distractions, windows)]
-                meta.append({"discriminative": discriminative_metadata, "noise": noise_full_distractions + noise_window_distractions})
+                meta.append({"ground_truth": discriminative_metadata, "non_discriminative": noise_full_distractions + noise_window_distractions})
 
 
         self.labels = labels
@@ -126,7 +126,7 @@ class Benchmark(Dataset):
         """Build a signal from metadata by adding noise and all sinusoidal components."""
         signal = self.rng.normal(0, self.noise_std, self.sample_length).astype(np.float32)
 
-        metadata = metadata.get("discriminative", []) + metadata.get("noise", [])
+        metadata = metadata.get("ground_truth", []) + metadata.get("non_discriminative", [])
         if len(metadata) > 0:
             frequencies = [window.get("freq") for window in metadata]
             positions = [window.get("pos") for window in metadata]

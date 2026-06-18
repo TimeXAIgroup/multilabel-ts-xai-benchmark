@@ -232,7 +232,7 @@ def train_rocket(args):
     model.fit(np.expand_dims(train_data, axis=1), train_labels)
 
     # save model
-    joblib.dump(model, out_dir / f"best_{args.model}.pt")
+    joblib.dump(model, out_dir / f"best_{args.model}.pkl")
 
     # --- Model evaluation ---
     logger.info("Evaluation")

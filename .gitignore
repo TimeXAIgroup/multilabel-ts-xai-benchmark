@@ -1,6 +1,13 @@
 # Dataset output files
 *.npy
 *.json
+experiments
+
+# jupyter notebooks
+*.ipynb
+
+# Other
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

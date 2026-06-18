@@ -15,6 +15,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from models.cnn import CNN
 from models.inceptiontime import InceptionTime
+from models.moment import Moment
 from models.resnet import ResNet
 from models.tcn import TCN
 
@@ -23,8 +24,8 @@ MODELS = {
     "tcn": TCN,
     "inceptiontime": InceptionTime,
     "resnet": ResNet,
+    "moment": Moment,
     #"minirocket": MyMiniRocket,
-    #"moment": MyMOMENT,
 }
 
 

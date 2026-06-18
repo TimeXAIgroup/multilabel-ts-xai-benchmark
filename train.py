@@ -7,6 +7,7 @@ import sys
 from logging import Logger
 from pathlib import Path
 
+import joblib
 import numpy as np
 import torch
 import torch.nn as nn
@@ -15,6 +16,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from models.cnn import CNN
 from models.inceptiontime import InceptionTime
+from models.minirocket import MiniRocket
 from models.moment import Moment
 from models.resnet import ResNet
 from models.tcn import TCN
@@ -25,7 +27,7 @@ MODELS = {
     "inceptiontime": InceptionTime,
     "resnet": ResNet,
     "moment": Moment,
-    #"minirocket": MyMiniRocket,
+    "minirocket": MiniRocket,
 }
 
 
@@ -106,7 +108,7 @@ def evaluate(model, loader, criterion, device):
             "f1_micro": f1_micro,}
 
 
-def train(args):
+def train_nn(args):
     logger = _get_logger()
     device = _get_device()
 
@@ -138,7 +140,7 @@ def train(args):
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     # --- Train model ---
-    logger.info("Training...")
+    logger.info("Training")
 
     best_val_loss = float("inf")
     for epoch in range(1, args.epochs + 1):
@@ -185,10 +187,73 @@ def train(args):
     logger.info(f"{'test':>10}  {test_metrics['loss']:>8.4f}  {test_metrics['exact_match']:>11.4f}  {test_metrics['hamming_acc']:>11.4f} {test_metrics['f1_macro']:>8.4f}")
 
 
+def evaluate_rocket(model, data, targets):
+    preds = model.predict(np.expand_dims(data, axis=1))
+
+    exact_match = (preds == targets).all(axis=1).mean()
+
+    f1_per_label = f1_score(targets, preds, average=None)
+    f1_micro = f1_score(targets, preds, average="micro")
+    f1_macro = f1_score(targets, preds, average="macro")
+    acc_hamming = float(np.mean(targets == preds))
+
+    return {"loss": None,
+            "exact_match": exact_match,
+            "hamming_acc": acc_hamming,
+            "f1_per_label": list(f1_per_label),
+            "f1_macro": f1_macro,
+            "f1_micro": f1_micro, }
+
+
+def train_rocket(args):
+    logger = _get_logger()
+    device = torch.device("cpu")
+
+    logger.info(f"Device: {device}")
+
+    data_dir = Path(args.data_dir)
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # --- Load data ---
+    logger.info(f"Loading data from {data_dir}")
+    train_data, train_labels = load_split(data_dir, "train")
+    val_data, val_labels = load_split(data_dir, "val")
+    test_data, test_labels = load_split(data_dir, "test")
+
+    logger.info(f"Number of samples: train={len(train_labels)}  val={len(val_labels)}  test={len(test_labels)}")
+
+    # --- Load model ---
+    model = MODELS[args.model]()
+    logger.info(f"Model: {model.__class__.__name__}")
+
+    # --- "Training" ---
+    logger.info("Fit model")
+    model.fit(np.expand_dims(train_data, axis=1), train_labels)
+
+    # save model
+    joblib.dump(model, out_dir / f"best_{args.model}.pt")
+
+    # --- Model evaluation ---
+    logger.info("Evaluation")
+
+    val_metrics = evaluate_rocket(model, val_data, val_labels)
+    test_metrics = evaluate_rocket(model, test_data, test_labels)
+
+    json.dump(val_metrics, open(out_dir / f"best_{args.model}_val_metrics.json", "w"))
+    json.dump(test_metrics, open(out_dir / f"best_{args.model}_test_metrics.json", "w"))
+
+    logger.info(f"{'':>10}  {'exact_match':>11}  {'hamming_acc':>11}  {'f1_macro':>8}")
+    logger.info(
+        f"{'val':>10}  {val_metrics['exact_match']:>11.4f}  {val_metrics['hamming_acc']:>11.4f}  {val_metrics['f1_macro']:>8.4f}")
+    logger.info(
+        f"{'test':>10}  {test_metrics['exact_match']:>11.4f}  {test_metrics['hamming_acc']:>11.4f}  {test_metrics['f1_macro']:>8.4f}")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--model", type=str, default="cnn", choices=list(MODELS.keys()), help="Model architecture")
+    parser.add_argument("--model", type=str, default="minirocket", choices=list(MODELS.keys()), help="Model architecture")
     parser.add_argument("--data_dir", type=str, default="./experiments/dataset/", help="Directory containing the dataset splits")
     parser.add_argument("--out_dir", type=str, default="./experiments/models/", help="Directory to save the model checkpoints")
     parser.add_argument("--epochs", type=int, default=20, help="Number of training epochs")
@@ -197,4 +262,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    train(args)
+    if "rocket" in args.model:
+        train_rocket(args)
+    else:
+        train_nn(args)

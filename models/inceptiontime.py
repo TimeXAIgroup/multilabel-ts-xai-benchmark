@@ -1,8 +1,9 @@
 """
-InceptionTime torch implementation from https://github.com/timeseriesAI/tsai/blob/main/tsai/models/InceptionTime.py
+InceptionTime torch implementation from https://github.com/timeseriesAI/tsai
 
-Fawaz, H. I., Lucas, B., Forestier, G., Pelletier, C., Schmidt, D. F., Weber, J., ... & Petitjean, F. (2019).
-InceptionTime: Finding AlexNet for Time Series Classification. arXiv preprint arXiv:1909.04939.
+H. Ismail Fawaz et al., “InceptionTime: Finding AlexNet for time series classification,”
+Data Mining and Knowledge Discovery, vol. 34, no. 6, pp. 1936–1962, Sep. 2020,
+doi: 10.1007/s10618-020-00710-y.
 Official InceptionTime tensorflow implementation: https://github.com/hfawaz/InceptionTime
 """
 from tsai.models.InceptionTime import InceptionTime as InceptionTime_tsai
@@ -11,8 +12,9 @@ from tsai.models.InceptionTime import InceptionTime as InceptionTime_tsai
 class InceptionTime(InceptionTime_tsai):
     """InceptionTime model from [1], pytorch implementation from https://github.com/timeseriesAI/tsai.
 
-    [1] Fawaz, H. I., Lucas, B., Forestier, G., Pelletier, C., Schmidt, D. F., Weber, J., ... & Petitjean, F. (2019).
-    InceptionTime: Finding AlexNet for Time Series Classification. arXiv preprint arXiv:1909.04939.
+    [1] H. Ismail Fawaz et al., “InceptionTime: Finding AlexNet for time series classification,”
+    Data Mining and Knowledge Discovery, vol. 34, no. 6, pp. 1936–1962, Sep. 2020,
+    doi: 10.1007/s10618-020-00710-y.
     Official InceptionTime tensorflow implementation: https://github.com/hfawaz/InceptionTime
     """
     def __init__(self,

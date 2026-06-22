@@ -142,7 +142,10 @@ def train_nn(args):
     # --- Train model ---
     logger.info("Training")
 
+    # for early stopping
     best_val_loss = float("inf")
+    no_improvement_counter = 0
+
     for epoch in range(1, args.epochs + 1):
         model.train()
         train_loss = 0.0
@@ -165,9 +168,16 @@ def train_nn(args):
 
         logger.info(f"Epoch {epoch:3d}/{args.epochs}  train={train_loss:.4f}  val={val_loss:.4f}")
 
-        if val_loss < best_val_loss:
+        # Early stopping and save best model
+        if val_loss < best_val_loss - args.delta:
             best_val_loss = val_loss
+            no_improvement_counter = 0
             torch.save(model.state_dict(), out_dir / f"best_{args.model}.pt")
+        else:
+            no_improvement_counter += 1
+            if no_improvement_counter >= args.patience:
+                logger.info(f"Early stopping in epoch {epoch}.")
+                break
 
     logger.info(f"Best val loss: {best_val_loss:.4f}  →  {out_dir / f'best_{args.model}.pt'}")
 
@@ -253,12 +263,14 @@ def train_rocket(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--model", type=str, default="minirocket", choices=list(MODELS.keys()), help="Model architecture")
+    parser.add_argument("--model", type=str, default="cnn", choices=list(MODELS.keys()), help="Model architecture")
     parser.add_argument("--data_dir", type=str, default="./experiments/dataset/", help="Directory containing the dataset splits")
-    parser.add_argument("--out_dir", type=str, default="./experiments/models/", help="Directory to save the model checkpoints")
+    parser.add_argument("--out_dir", type=str, default="./temp_test/models/", help="Directory to save the model checkpoints")
     parser.add_argument("--epochs", type=int, default=20, help="Number of training epochs")
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size")
     parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
+    parser.add_argument("--patience", type=int, default=10, help="Patience for early stopping")
+    parser.add_argument("--delta", type=float, default=0.001, help="Delta for early stopping")
 
     args = parser.parse_args()
 

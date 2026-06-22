@@ -265,7 +265,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--model", type=str, default="cnn", choices=list(MODELS.keys()), help="Model architecture")
     parser.add_argument("--data_dir", type=str, default="./experiments/dataset/", help="Directory containing the dataset splits")
-    parser.add_argument("--out_dir", type=str, default="./temp_test/models/", help="Directory to save the model checkpoints")
+    parser.add_argument("--out_dir", type=str, default="./experiments/models/", help="Directory to save the model checkpoints")
     parser.add_argument("--epochs", type=int, default=20, help="Number of training epochs")
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size")
     parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")

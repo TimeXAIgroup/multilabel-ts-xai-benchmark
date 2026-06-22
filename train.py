@@ -31,7 +31,7 @@ MODELS = {
 }
 
 
-def _get_logger() -> Logger:
+def _get_logger(filename: str | None = None) -> Logger:
     logger = logging.getLogger(__name__)
 
     format = "%(asctime)s, %(levelname)s: %(message)s"
@@ -42,6 +42,14 @@ def _get_logger() -> Logger:
     stream_handler.setFormatter(formatter)
     logging.getLogger().addHandler(stream_handler)
     logging.getLogger().setLevel(logging.INFO)
+
+    if filename is not None:
+        logfile = filename
+        file_handler = logging.FileHandler(logfile, mode="w")
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(formatter)
+
+        logging.getLogger().addHandler(file_handler)
 
     return logger
 
@@ -109,7 +117,7 @@ def evaluate(model, loader, criterion, device):
 
 
 def train_nn(args):
-    logger = _get_logger()
+    logger = _get_logger(filename=f"{args.out_dir}/{args.model}.log")
     device = _get_device()
 
     logger.info(f"Device: {device}")
@@ -216,7 +224,7 @@ def evaluate_rocket(model, data, targets):
 
 
 def train_rocket(args):
-    logger = _get_logger()
+    logger = _get_logger(filename=f"{args.out_dir}/{args.model}.log")
     device = torch.device("cpu")
 
     logger.info(f"Device: {device}")

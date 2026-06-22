@@ -102,7 +102,11 @@ class Benchmark(Dataset):
 
                 window_distractions = self.rng.choice(self.distractor_pool, size=self.num_window_distractions,
                                                       replace=False)
-                windows = self._place_windows(len(window_distractions))
+                windows = []
+                for _ in window_distractions:
+                    # create windows independently to avoid overlap condition present in "_place_windows"
+                    windows.append(self._place_windows(num_windows=1)[0])
+
                 noise_window_distractions = [{"channel": 0,
                                               "pos": window[0],
                                               "len": window[1]-window[0],
@@ -151,7 +155,8 @@ class Benchmark(Dataset):
         return signal
 
     def _place_windows(self, num_windows: int):
-        """Return (start, end) tuples for num_windows overlapping windows placed randomly."""
+        """Return (start, end) tuples for num_windows overlapping windows placed randomly.
+        If `num_windows` is larger than 1, the minimum and maximum overlaps are considered."""
         if num_windows == 0:
             return []
         if num_windows == 1:

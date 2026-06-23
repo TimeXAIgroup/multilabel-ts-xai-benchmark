@@ -322,105 +322,6 @@ def _get_sample_index(labels, pattern_idx: int):
     return matches[0]
 
 
-def plot_class_thumbnail(data,
-                         labels,
-                         metadata,
-                         pattern_idx: int,
-                         save_dir = "./plots/"):
-    """Small signal thumbnail for one label-combination pattern.
-
-    Produces a compact, publication-ready figure for embedding in a table.
-
-    Args:
-        data: Data
-        pattern_idx: Index into dataset.patterns (0 = all-absent, last = all-present).
-    """
-    sample_index = _get_sample_index(labels, pattern_idx)
-
-    freq_windows = {}
-    for entry in metadata[str(sample_index)].get("ground_truth", []):
-        freq_windows.setdefault(entry["freq"], []).append(
-            (entry["pos"], entry["pos"] + entry["len"])
-        )
-
-    sl  = len(data[0])
-    sig = data[sample_index]
-    mid = sl // 2
-
-    fig, ax = plt.subplots(figsize=(2.0, 0.7))
-    fig.subplots_adjust(left=0.14, right=0.97, top=0.95, bottom=0.20)
-
-    ax.plot(np.arange(sl), sig, color="black", linewidth=0.2)
-
-    for freq, windows in freq_windows.items():
-        color = CLASS_COLORS[_FREQS.index(freq)]
-        for s, e in windows:
-            ax.axvspan(s, e, facecolor=color, edgecolor='none', alpha=0.25, zorder=1)
-
-    ax.set_xlim(0, sl)
-    ax.set_xticks([0, mid, sl])
-    ax.set_xticklabels(["0", str(mid), str(sl)])
-    ax.set_yticks([-1, 0, 1])
-    for spine in ax.spines.values():
-        spine.set_linewidth(0.2)
-    ax.tick_params(labelsize=3, length=1, width=0.2, pad=1)
-
-    os.makedirs(save_dir, exist_ok=True)
-    plt.savefig(Path(save_dir) / f"class_thumbnail_{pattern_idx}.png", bbox_inches="tight", dpi=600, pad_inches=0)
-
-
-def plot_gt_thumbnail(data,
-                      labels,
-                      metadata,
-                      pattern_idx: int,
-                      sampling_rate = 100,
-                      save_dir = "./plots/"):
-    """Small ground-truth mask thumbnail for one label-combination pattern.
-
-    Shows each discriminative frequency band as a coloured rectangle in
-    time-frequency space, matching the coloring used in plot_sample.
-
-    Args:
-        data: A Benchmark dataset instance.
-        pattern_idx: Index into dataset.patterns (0 = all-absent, last = all-present).
-    """
-    sl = len(data[0])
-
-    sample_index = _get_sample_index(labels, pattern_idx)
-
-    freq_windows = {}
-    for entry in metadata[str(sample_index)].get("ground_truth", []):
-        freq_windows.setdefault(entry["freq"], []).append(
-            (entry["pos"], entry["pos"] + entry["len"])
-        )
-
-    fig, ax = plt.subplots(figsize=(2.0, 0.5))
-    fig.subplots_adjust(left=0.14, right=0.97, top=0.95, bottom=0.20)
-
-    for freq, color in zip(_FREQS, CLASS_COLORS):
-        if freq not in freq_windows:
-            continue
-        f_ctr = freq / sampling_rate
-        for s, e in freq_windows[freq]:
-            ax.add_patch(mpatches.Rectangle(
-                (s, f_ctr - _GT_BW / 2), e - s, _GT_BW,
-                facecolor=color, alpha=0.35, edgecolor="none",
-            ))
-
-    ax.set_xlim(0, sl)
-    ax.set_ylim(0, 0.5)
-    ax.set_xticks([0, sl // 2, sl])
-    ax.set_xticklabels(["0", str(sl // 2), str(sl)])
-    ax.set_yticks([0.0, 0.5])
-    ax.set_yticklabels(["0", "50"])
-    for spine in ax.spines.values():
-        spine.set_linewidth(0.4)
-    ax.tick_params(labelsize=3, length=1, width=0.2, pad=1)
-
-    os.makedirs(save_dir, exist_ok=True)
-    plt.savefig(Path(save_dir) / f"gt_thumbnail_{pattern_idx}.png", bbox_inches="tight", dpi=600, pad_inches=0)
-
-
 def plot_thumbnail(data,
                    labels,
                    metadata,
@@ -516,6 +417,4 @@ if __name__ == "__main__":
 
     if dataset == "simple":
         for idx in range(8):
-            plot_class_thumbnail(data=data, labels=labels, metadata=metadata, pattern_idx=idx)
-            plot_gt_thumbnail(data=data, labels=labels, metadata=metadata, pattern_idx=idx)
             plot_thumbnail(data=data, labels=labels, metadata=metadata, pattern_idx=idx)

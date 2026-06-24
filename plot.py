@@ -349,7 +349,7 @@ def plot_thumbnail(data,
     mid = signal_length // 2
 
     fig, (ax_signal, ax_mask) = plt.subplots(nrows=2, ncols=1,
-                                             figsize=(2.0, 1.2),
+                                             figsize=(2.0, 0.8),
                                              sharex=True,
                                              gridspec_kw={"height_ratios": [1.4, 1.0]})
     fig.subplots_adjust(left=0.14, right=0.97, top=0.95, bottom=0.10, hspace=0.1)
@@ -407,7 +407,7 @@ if __name__ == "__main__":
     data_dir = Path(f"./experiments/{data_dir}/")
     split = "train"
 
-    data, labels = load_split(data_dir, split)
+    data, labels, _ = load_split(data_dir, split)
     with open(data_dir / f"{split}_labels.json", "r") as file:
         metadata = json.load(file)
         file.close()

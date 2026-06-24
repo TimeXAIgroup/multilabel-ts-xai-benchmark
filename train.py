@@ -71,9 +71,13 @@ def load_split(data_dir: Path, name: str):
     with open(data_dir / f"{name}_labels.json") as file:
         labels = json.load(file)
         file.close()
-    labels = np.array([labels["label"][str(i)] for i in range(len(labels["label"]))], dtype=np.float32)
+    labels = np.array(list(labels.values()), dtype=np.float32)
 
-    return data.astype(np.float32), labels
+    with open(data_dir / f"{name}_metadata.json") as file:
+        metadata = json.load(file)
+        file.close()
+
+    return data.astype(np.float32), labels, metadata
 
 
 def make_loader(data: np.ndarray, labels: np.ndarray, batch_size: int, shuffle: bool):
@@ -117,20 +121,20 @@ def evaluate(model, loader, criterion, device):
 
 
 def train_nn(args):
+    data_dir = Path(args.data_dir)
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     logger = _get_logger(filename=f"{args.out_dir}/{args.model}.log")
     device = _get_device()
 
     logger.info(f"Device: {device}")
 
-    data_dir = Path(args.data_dir)
-    out_dir = Path(args.out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
     # --- Load data ---
     logger.info(f"Loading data from {data_dir}")
-    train_data, train_labels = load_split(data_dir, "train")
-    val_data, val_labels = load_split(data_dir, "val")
-    test_data, test_labels = load_split(data_dir, "test")
+    train_data, train_labels, _ = load_split(data_dir, "train")
+    val_data, val_labels, _ = load_split(data_dir, "val")
+    test_data, test_labels, _ = load_split(data_dir, "test")
 
     logger.info(f"Number of samples: train={len(train_labels)}  val={len(val_labels)}  test={len(test_labels)}")
 
@@ -235,9 +239,9 @@ def train_rocket(args):
 
     # --- Load data ---
     logger.info(f"Loading data from {data_dir}")
-    train_data, train_labels = load_split(data_dir, "train")
-    val_data, val_labels = load_split(data_dir, "val")
-    test_data, test_labels = load_split(data_dir, "test")
+    train_data, train_labels, _ = load_split(data_dir, "train")
+    val_data, val_labels, _ = load_split(data_dir, "val")
+    test_data, test_labels, _ = load_split(data_dir, "test")
 
     logger.info(f"Number of samples: train={len(train_labels)}  val={len(val_labels)}  test={len(test_labels)}")
 

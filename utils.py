@@ -33,8 +33,8 @@ def save_split(data: np.ndarray | list, labels: np.ndarray, meta: list, name: st
 
     out_dir.mkdir(parents=True, exist_ok=True)
     np.save(out_dir / f"{name}_data.npy", data)
-    label_json = {
-        "label": {str(i): labels[i].tolist() for i in range(len(labels))},
-        "metadata": {str(i): meta[i] for i in range(len(meta))},
-    }
+    label_json = {str(i): labels[i].tolist() for i in range(len(labels))}
     (out_dir / f"{name}_labels.json").write_text(json.dumps(label_json))
+
+    metadata_json = {str(i): meta[i] for i in range(len(meta))}
+    (out_dir / f"{name}_metadata.json").write_text(json.dumps(metadata_json))

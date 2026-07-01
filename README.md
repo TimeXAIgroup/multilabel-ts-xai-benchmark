@@ -1,7 +1,7 @@
 # Synthetic Multi-Label Time Series Classification Dataset for XAI Evaluation
 
 [![Dataset](https://img.shields.io/badge/Dataset-10.5281%2Fzenodo.20744119-1682D4)](https://doi.org/10.5281/zenodo.20744119)
-![License](https://img.shields.io/badge/license-BSD--3--Clause-green)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 
 This repository accompanies a synthetic multi-label time series classification dataset designed to support the 

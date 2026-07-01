@@ -1,6 +1,6 @@
 """Visualisation utilities for the Benchmark dataset."""
+import argparse
 import itertools
-import json
 import os
 import warnings
 from pathlib import Path
@@ -255,6 +255,8 @@ def _attach_legend(ax, freqs, class_colors, freq_windows, overlaps):
             ))
         handles.append(tuple(patches_for_group))
         labels.append("Overlap (co-occurrence)")
+    elif len(overlaps) < 1:
+        pass
     else:
         warnings.warn("Legend patch not implemented for 3 or more overlaps.")
 
@@ -396,25 +398,14 @@ def plot_thumbnail(data,
 
 if __name__ == "__main__":
 
-    dataset = "simple"
-    if dataset == "simple":
-        data_dir = "dataset_simple"
-        dataset_additon = "simple"
-    else:
-        data_dir = "dataset"
-        dataset_additon = None
+    parser = argparse.ArgumentParser()
 
-    data_dir = Path(f"./experiments/{data_dir}/")
-    split = "train"
+    parser.add_argument("--data_dir", type=str, default="./experiments/dataset/", help="Directory containing the dataset")
+    parser.add_argument("--split", type=str, default="train", choices=["train", "test", "val"], help="Split of the dataset")
+    parser.add_argument("--out_dir", type=str, default="./experiments/dataset/plots/", help="Directory to save the plots")
+    parser.add_argument("--sample_idx", type=int, default=6, help="Index of the sample to plot")
 
-    data, labels, _ = load_split(data_dir, split)
-    with open(data_dir / f"{split}_labels.json", "r") as file:
-        metadata = json.load(file)
-        file.close()
-    metadata = metadata["metadata"]
+    args = parser.parse_args()
 
-    plot_sample(data, labels, metadata, sample_index=6, save_name_addition=dataset_additon)
-
-    if dataset == "simple":
-        for idx in range(8):
-            plot_thumbnail(data=data, labels=labels, metadata=metadata, pattern_idx=idx)
+    data, labels, metadata = load_split(args.data_dir, args.split)
+    plot_sample(data, labels, metadata, sample_index=args.sample_idx, save_dir=args.out_dir)

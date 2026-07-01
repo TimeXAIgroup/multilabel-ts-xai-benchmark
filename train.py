@@ -64,8 +64,11 @@ def _get_device():
     return torch.device(device)
 
 
-def load_split(data_dir: Path, name: str):
-    """Load a saved split from disk, returning (data, labels) as float32 arrays."""
+def load_split(data_dir: Path | str, name: str):
+    """Load a saved split from disk, returning (data, labels, metadata) as float32 arrays and dict."""
+    if isinstance(data_dir, str):
+        data_dir = Path(data_dir)
+
     data = np.load(data_dir / f"{name}_data.npy")
 
     with open(data_dir / f"{name}_labels.json") as file:
@@ -279,7 +282,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_dir", type=str, default="./experiments/dataset/", help="Directory containing the dataset splits")
     parser.add_argument("--out_dir", type=str, default="./experiments/models/", help="Directory to save the model checkpoints")
     parser.add_argument("--epochs", type=int, default=20, help="Number of training epochs")
-    parser.add_argument("--batch_size", type=int, default=64, help="Batch size")
+    parser.add_argument("--batch_size", type=int, default=128, help="Batch size")
     parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
     parser.add_argument("--patience", type=int, default=10, help="Patience for early stopping")
     parser.add_argument("--delta", type=float, default=0.001, help="Delta for early stopping")

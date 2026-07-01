@@ -1,7 +1,8 @@
 # Synthetic Multi-Label Time Series Classification Dataset for XAI Evaluation
 
 [![Dataset](https://img.shields.io/badge/Dataset-10.5281%2Fzenodo.20744119-1682D4)](https://doi.org/10.5281/zenodo.20744119)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Code License: MIT](https://img.shields.io/badge/Code%20License-MIT-yellow.svg)](LICENSE)
+[![Data License: CC BY 4.0](https://img.shields.io/badge/Data%20License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 
 This repository accompanies a synthetic multi-label time series classification dataset designed to support the 
@@ -21,15 +22,30 @@ each discriminative component. The data are provided in NumPy format with labels
 format. The dataset and trained baseline models are deposited on [Zenodo](https://doi.org/10.5281/zenodo.20744119). The 
 data generation and model training code are available in this repository.
 
-![Sample_6](./plots/sample_6.png)
+![Sample_6_simple](./docs/figures/sample_simple_6.png)
 
-- [ ] TODO
-Specifically, the dataset allows evaluation of whether an explanation:
+The dataset supports evaluation whether an explanation:
 - identifies the correct temporal region,
 - identifies the correct frequency component,
 - distinguishes discriminative from non-discriminative signals,
 - remains robust under overlapping discriminative patterns,
 - recovers explanations in time, frequency, and time-frequency domains.
+
+## Table of Contents
+**Dataset**
+- [Dataset Description](#dataset-description)
+- [Download](#download)
+- [Citation](#citation)
+- [License](#license)
+
+**Technical Details**
+- [Repository Structure](#repository-structure)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Generate a Dataset](#generate-a-dataset)
+- [Custom Dataset Configuration](#custom-dataset-configuration)
+- [Visualize the Dataset and Ground Truth](#visualize-the-dataset-and-ground-truth)
+- [Train a Model](#train-a-model)
 
 ## Dataset Description
 ### Dataset at a glance
@@ -45,6 +61,9 @@ Specifically, the dataset allows evaluation of whether an explanation:
 | Ground-truth explanations | ✓                               |
 | Domains                   | Time, Frequency, Time-Frequency |
 | Format                    | NumPy + JSON                    |
+
+Values above reflect the defaults used to generate the published dataset. Parameters are configurable if you 
+generate your own version - see [Generate a Dataset](#generate-a-dataset). 
 
 ### Signal composition
 Each sample is constructed as the superposition of:
@@ -108,25 +127,20 @@ With default settings (`--train_split 0.7`, `--test_split 0.15`), the dataset co
 and 600 test samples. A stratified split is performed to keep the distribution of label combinations similar in each 
 split.
 
-### Download
-Direct link to Zenodo record. What files are in the archive, their format and size. Minimal loading example:
-pythonimport numpy as np, json
-data   = np.load("train_data.npy")
-labels = json.load(open("train_labels.json"))
+## Download
+The full dataset and trained baseline models are available on Zenodo: 
+[10.5281/zenodo.20744119](https://doi.org/10.5281/zenodo.20744119).
 
-## Quick Start
-Generate the benchmark:
-```bash
-python generate_dataset.py
-```
+The archive contains `{train,val,test}_data.npy`, `{train,val,test}_labels.json`, and 
+`{train,val,test}_metadata.json`.
 
-Visualize samples:
-- [ ] TODO: args
 
-Train a baseline model:
-```bash
-python train.py --model inceptiontime
-```
+---
+
+# Technical Details
+
+This section covers how to generate your own version of the dataset, visualize samples and ground truth,
+and train baseline models.
 
 ## Repository Structure
 
@@ -155,37 +169,41 @@ Recommended Python Version: Python 3.11
 pip install -r requirements.txt
 ```
 
+## Quick Start
+```bash
+# 1. Generate the dataset
+python generate_dataset.py
+
+# 2. Visualize samples
+python visualize.py --data_dir ./dataset/ --sample_idx 6
+# (see Visualize section below for the full option list)
+
+# 3. Train a baseline model
+python train.py --model inceptiontime
+```
+
 ## Generate a Dataset
 
 ```bash
 python generate_dataset.py [--out_dir ./dataset/] [--train_split 0.7] [--test_split 0.15] [--seed 42]
 ```
 
-Saves `{split}_data.npy` and `{split}_labels.json` for each of the three splits (`train`, `val`, `test`).
+Saves `{split}_data.npy`, `{split}_labels.json`, and `{split}_metadata.json` for each of the three splits (`train`, `val`, `test`).
 
 **Options**
 
-```
-options:
-  -h, --help            show this help message and exit
-  --train_split TRAIN_SPLIT
-  --test_split TEST_SPLIT
-  --seed SEED
-  --out_dir OUT_DIR
-  --num_full_distractions NUM_FULL_DISTRACTIONS
-  --num_window_distractions NUM_WINDOW_DISTRACTIONS
-```
+| Argument                    | Default      | Description                                         |
+|-----------------------------|--------------|-----------------------------------------------------|
+| `--train_split`             | `0.7`        | Fraction of data used for training                  |
+| `--test_split`              | `0.15`       | Fraction of data used for testing (remainder → val) |
+| `--seed`                    | `42`         | Random seed for reproducible splits                 |
+| `--out_dir`                 | `./dataset/` | Output directory                                    |
+| `--num_full_distractions`   | `3`          | Number of full-signal distractor sinusoids          |
+| `--num_window_distractions` | `3`          | Number of windowed distractor sinusoids             |
 
-| Argument | Default | Description |
-|---|---|---|
-| `--train_split` | `0.7` | Fraction of data used for training |
-| `--test_split` | `0.15` | Fraction of data used for testing (remainder → val) |
-| `--seed` | `42` | Random seed for reproducible splits |
-| `--out_dir` | `./dataset/` | Output directory |
+## Custom Dataset Configuration
 
-### Advanced: Custom Dataset Configuration
-
-To customise the dataset itself, instantiate `Benchmark` directly:
+To customize the dataset beyond the CLI flags above, instantiate `Benchmark` directly:
 
 ```python
 from data.benchmark import Benchmark
@@ -206,39 +224,51 @@ dataset = Benchmark(
 )
 ```
 
-With the default settings, the dataset has **8 classes** (power set of 3 frequencies) × 500 samples = **4 000 samples** total.
-
 ## Visualize the Dataset and Ground Truth
+ 
+```bash
+python visualize.py [--data_dir ./dataset/] [--split train] [--out_dir ./dataset/plots/] [--sample_idx 6] 
+```
 
+![Sample_6](./docs/figures/sample_6.png)
+Visualization example. The top row shows the signal, containing class-specific discriminative features and 
+non-discriminative features. Shaded regions indicate the ground truth temporal locations of the class-specific 
+features. The bottom row shows the spectrogram of the time series (generated via Fourier transformation) and the 
+explanation ground-truth masks in time-frequency domain.
+
+**Visualization options**
+
+| Argument       | Default            | Description                             |
+|----------------|--------------------|-----------------------------------------|
+| `--data_dir`   | `./dataset/`       | Directory containing the dataset splits |
+| `--split`      | `train`            | Split to load: `train`, `val`, `test`   |
+| `--out_dir`    | `./dataset/plots/` | Plot output directory                   |
+| `--sample_idx` | `6`                | Index of sample to plot                 |
 
 ## Train a Model
 
 Requires a dataset generated by `generate_dataset.py`.
 
 ```bash
-python train.py [--model resnet] [--data_dir ./dataset/] [--epochs 20] [--batch_size 64] [--lr 1e-3]
+python train.py [--model resnet] [--data_dir ./dataset/] [--epochs 20] [--batch_size 128] [--lr 1e-3]
 ```
 
-The best checkpoint (by val loss) is saved to `OUT_DIR/best_{model}.pt`.
-Final val and test metrics (loss, exact-match accuracy, macro F1) are printed after training
+The best checkpoint (by validation loss) is saved to `OUT_DIR/best_{model}.pt`.
+Final validation and test metrics (loss, exact-match accuracy, macro F1) are printed after training
 and stored in `OUT_DIR/best_{model}_val_metrics.json` / `OUT_DIR/best_{model}_test_metrics.json`.
 
 **Training options**
 
-```
-options:
-  -h, --help            show this help message and exit
-  --model {cnn,tcn,inceptiontime,resnet,moment,minirocket}
-                        Model architecture
-  --data_dir DATA_DIR   Directory containing the dataset splits
-  --out_dir OUT_DIR     Directory to save the model checkpoints
-  --epochs EPOCHS       Number of training epochs
-  --batch_size BATCH_SIZE
-                        Batch size
-  --lr LR               Learning rate
-  --patience PATIENCE   Patience for early stopping
-  --delta DELTA         Delta for early stopping
-```
+| Argument       | Default      | Description                                                                         |
+|----------------|--------------|-------------------------------------------------------------------------------------|
+| `--model`      | `cnn`        | Model architecture: `cnn`, `tcn`, `inceptiontime`, `resnet`, `moment`, `minirocket` |
+| `--data_dir`   | `./dataset/` | Directory containing the dataset splits                                             |
+| `--out_dir`    | `./models/`  | Directory to save the model checkpoints                                             |
+| `--epochs`     | `20`         | Number of training epochs                                                           |
+| `--batch_size` | `128`        | Batch size                                                                          |
+| `--lr`         | `1e-3`       | Learning rate                                                                       |
+| `--patience`   | `10`         | Patience for early stopping                                                         |
+| `--delta`      | `0.001`      | Delta for early stopping                                                            |
 
 ## Citation
 If you use this dataset in your work, please cite the Zenodo record:
@@ -254,5 +284,6 @@ If you use this dataset in your work, please cite the Zenodo record:
 ```
 
 ## License
-The code in this repository is licensed under the BSD 3-Clause License.
+
+The code in this repository is licensed under the MIT License.
 The dataset published on Zenodo is licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).

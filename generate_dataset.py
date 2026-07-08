@@ -83,7 +83,7 @@ if __name__ == '__main__':
     parser.add_argument("--train_split", required=False, type=float, default=0.7)
     parser.add_argument("--test_split", required=False, type=float, default=0.15)
     parser.add_argument("--seed", required=False, type=int, default=42)
-    parser.add_argument("--out_dir", required=False, type=str, default="./experiments/dataset/")
+    parser.add_argument("--out_dir", required=False, type=str, default="./dataset/")
     parser.add_argument("--num_full_distractions", required=False, type=int, default=3)
     parser.add_argument("--num_window_distractions", required=False, type=int, default=3)
 

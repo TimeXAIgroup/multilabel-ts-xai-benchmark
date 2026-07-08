@@ -400,9 +400,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--data_dir", type=str, default="./experiments/dataset/", help="Directory containing the dataset")
+    parser.add_argument("--data_dir", type=str, default="./dataset/", help="Directory containing the dataset")
     parser.add_argument("--split", type=str, default="train", choices=["train", "test", "val"], help="Split of the dataset")
-    parser.add_argument("--out_dir", type=str, default="./experiments/dataset/plots/", help="Directory to save the plots")
+    parser.add_argument("--out_dir", type=str, default="./dataset/plots/", help="Directory to save the plots")
     parser.add_argument("--sample_idx", type=int, default=6, help="Index of the sample to plot")
 
     args = parser.parse_args()

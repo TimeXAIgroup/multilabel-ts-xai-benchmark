@@ -28,15 +28,12 @@ The dataset supports evaluation whether an explanation:
 - identifies the correct temporal region,
 - identifies the correct frequency component,
 - distinguishes discriminative from non-discriminative signals,
-- remains robust under overlapping discriminative patterns,
-- recovers explanations in time, frequency, and time-frequency domains.
+- remains robust under overlapping discriminative patterns.
 
 ## Table of Contents
 **Dataset**
 - [Dataset Description](#dataset-description)
 - [Download](#download)
-- [Citation](#citation)
-- [License](#license)
 
 **Technical Details**
 - [Repository Structure](#repository-structure)
@@ -46,6 +43,8 @@ The dataset supports evaluation whether an explanation:
 - [Custom Dataset Configuration](#custom-dataset-configuration)
 - [Visualize the Dataset and Ground Truth](#visualize-the-dataset-and-ground-truth)
 - [Train a Model](#train-a-model)
+- [Citation](#citation)
+- [License](#license)
 
 ## Dataset Description
 ### Dataset at a glance
@@ -58,29 +57,27 @@ The dataset supports evaluation whether an explanation:
 | Labels                    | 3 binary classes                |
 | Label combinations        | 8                               |
 | Sampling rate             | 100 Hz                          |
-| Ground-truth explanations | ✓                               |
-| Domains                   | Time, Frequency, Time-Frequency |
-| Format                    | NumPy + JSON                    |
+| Explanation domains       | Time, Frequency, Time-Frequency |
 
 Values above reflect the defaults used to generate the published dataset. Parameters are configurable if you 
-generate your own version - see [Generate a Dataset](#generate-a-dataset). 
+generate your own version (see [Generate a Dataset](#generate-a-dataset)). 
 
 ### Signal composition
 Each sample is constructed as the superposition of:
 - 0-3 discriminative frequency windows at class-specific frequencies (7, 19, or 37Hz), placed at random positions 
-within the signal with an overlap between 25% and 50% of the window length
-- 3 distractor frequency windows at non-discriminative frequencies, placed at random positions
-- 3 full-signal frequency distractors spanning all 500 time steps at non-discriminative frequencies
-- Gaussian noise with a standard deviation of 0.1
+within the signal with an overlap between 25% and 50% of the window length.
+- 3 distractor frequency windows at non-discriminative frequencies, placed at random positions.
+- 3 full-signal frequency distractors spanning all 500 time steps at non-discriminative frequencies.
+- Gaussian noise with a standard deviation of 0.1.
 
 ### Signal structure
 The dataset contains 4000 univariate time series of 500 time steps each, stored as NumPy array of shape 
 `(4000, 1, 500)` with dtype `float32`. Signal values are the superposition of frequency windows and Gaussian noise, 
-with typical amplitudes in the range of $\pm$3.
+with typical amplitudes in the range of $\pm~3$.
 
 ### Label structure
 Labels are provided as multi-hot binary matrix of shape `(4000, 3)` with integer values, where index 0 corresponds to 
-7Hz, index 1 to 19Hz and index 2 to 37Hz. Three binary labels may co-occur, yielding 8 possible label combinations:
+7Hz, index 1 to 19Hz and index 2 to 37Hz. Three binary labels may co-occur, resulting in 8 possible label combinations:
 
 | Label vector | Active classes    |
 |--------------|-------------------|
@@ -96,7 +93,7 @@ Labels are provided as multi-hot binary matrix of shape `(4000, 3)` with integer
 ### Ground-truth annotation
 Each sample is accompanied by full ground-truth annotations in a JSON file. The top-level structure contains a 
 `"label"` and a `"metadata"` dictionary keyed by sample index (as a string). Each metadata entry contains two lists: 
-`"ground_truth"` for discriminative components and `"non-discriminative"` for distractor components. Each component 
+`"ground_truth"` for discriminative components and `"non_discriminative"` for distractor components. Each component 
 entry has the following fields:
 
 | Field     | Description                                  |
@@ -114,8 +111,8 @@ A minimal example (label `[0, 1, 0]`, 19Hz only):
         {"channel": 0,  "pos": 264, "len": 150, "freq": 19, "phase": 0.340}
     ],
     "non_discriminative": [
-        {"channel": 0,  "pos": 141, "len": 150, "freq": 32, "phase": 5.608},
-        {"channel": 0,  "pos": 0,   "len": 500, "freq": 10, "phase": 5.535}
+        {"channel": 0,  "pos": 0,   "len": 500, "freq": 10, "phase": 5.535},
+        {"channel": 0,  "pos": 141, "len": 150, "freq": 32, "phase": 5.608}
     ]
 }
 ```

@@ -268,15 +268,17 @@ and stored in `OUT_DIR/best_{model}_val_metrics.json` / `OUT_DIR/best_{model}_te
 | `--delta`      | `0.001`      | Delta for early stopping                                                            |
 
 ## Citation
-If you use this dataset in your work, please cite the Zenodo record:
+If you use this dataset in your work, please cite the paper:
 ```
-@dataset{Fischer2026,
-  author    = {Fischer, Jana and Gumpfer, Nils and Hannig, Jennifer},
-  title     = {Synthetic Multi-Label Time Series Classification Dataset for XAI Evaluation},
+@article{Fischer2026,
+  author    = {Fischer, Jana and Gumpfer, Nils and Papenbrock, Thorsten and Hannig, Jennifer},
+  title     = {A Synthetic Multi-Label Time Series Classification Dataset with Time-Frequency Ground-Truth Explanation for Evaluating Explainable Artificial Intelligence Methods},
   year      = {2026},
-  publisher = {Zenodo},
-  doi       = {10.5281/zenodo.20744119},
-  url       = {https://doi.org/10.5281/zenodo.20744119},
+  journal   = {Data in Brief},
+  pages     = {113439},
+  issn      = {23523409},
+  doi       = {10.1016/j.dib.2026.113439},
+  url       = {https://doi.org/10.1016/j.dib.2026.113439},
 }
 ```
 
